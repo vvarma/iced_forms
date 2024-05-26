@@ -7,6 +7,7 @@ struct Config {
     //path: PathBuf,
     seed: usize,
     num: f32,
+    enabled: bool,
 }
 
 fn main() -> iced::Result {

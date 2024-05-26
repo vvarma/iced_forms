@@ -1,8 +1,7 @@
-use std::path::PathBuf;
-
 use derive_builder::Builder;
 use iced::{
-    widget::{button, column},
+    alignment,
+    widget::{button, column, toggler},
     Command, Element,
 };
 use iced_form::form_field::{self, FormField};
@@ -13,6 +12,8 @@ struct Config {
     //path: PathBuf,
     seed: usize,
     num: f32,
+    #[builder(default = "false")]
+    enabled: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -21,6 +22,7 @@ enum Message {
     //Path(form_field::Message<PathBuf>),
     Seed(form_field::Message<usize>),
     Num(form_field::Message<f32>),
+    Enabled(bool),
     Config(Config),
 }
 
@@ -48,6 +50,12 @@ impl ConfigForm {
             //       self.path_field.view().map(Message::Path),
             self.seed_field.view().map(Message::Seed),
             self.num_field.view().map(Message::Num),
+            toggler(
+                Some("Enabled".to_string()),
+                self.builder.enabled.unwrap_or(false),
+                Message::Enabled
+            )
+            .text_alignment(alignment::Horizontal::Left),
             button("Submit").on_press_maybe(self.builder.build().ok().map(Message::Config))
         ]
         .into()
@@ -71,6 +79,10 @@ impl ConfigForm {
                     self.builder.num(num);
                 }
                 self.num_field.update(msg).map(Message::Num)
+            }
+            Message::Enabled(val) => {
+                self.builder.enabled(val);
+                Command::none()
             }
             Message::Config(config) => {
                 println!("Got config {:?}", config);

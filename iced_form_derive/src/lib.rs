@@ -1,7 +1,7 @@
 use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use quote::{format_ident, quote, quote_spanned};
-use syn::{parse_macro_input, spanned::Spanned, Data, DeriveInput, Fields};
+use syn::{parse_macro_input, spanned::Spanned, Data, DeriveInput, Fields, Type, TypePath};
 
 #[proc_macro_derive(FormBuilder)]
 pub fn derive(input: TokenStream) -> TokenStream {
@@ -52,6 +52,20 @@ pub fn derive(input: TokenStream) -> TokenStream {
     tokens
 }
 
+fn is_bool(ty: &Type) -> bool {
+    println!("{:?}", ty);
+    match ty {
+        Type::Path(TypePath { qself: None, path }) => {
+            if let Some(seg) = path.segments.first() {
+                seg.ident == "bool"
+            } else {
+                false
+            }
+        }
+        _ => false,
+    }
+}
+
 fn gen_fields(
     data: &Data,
     form_message: &proc_macro2::Ident,
@@ -72,14 +86,18 @@ fn gen_fields(
                         "{}",
                         name.clone().unwrap().to_string().to_case(Case::Pascal)
                     );
-                    quote_spanned! {f.span()=> #pascal_name(iced_form::form_field::Message<#ty>) }
+                    if is_bool(ty){
+                        quote_spanned! {f.span()=> #pascal_name(#ty) }
+                    }else{
+                        quote_spanned! {f.span()=> #pascal_name(iced_form::form_field::Message<#ty>) }
+                    }
                 });
-                let form_fields = fields.named.iter().map(|f| {
+                let form_fields = fields.named.iter().filter(|f| !is_bool(&f.ty)).map(|f| {
                     let name = &f.ident;
                     let ty = &f.ty;
                     quote_spanned! {f.span()=> #name: ::iced_form::form_field::FormField<#ty> }
                 });
-                let form_default = fields.named.iter().map(|f|{
+                let form_default = fields.named.iter().filter(|f| !is_bool(&f.ty)).map(|f|{
                     let name = &f.ident;
                     let title_name = name.clone().unwrap().to_string().to_case(Case::Title);
                     quote_spanned! {f.span()=>#name: ::iced_form::form_field::FormField::new(#title_name)}
@@ -90,7 +108,17 @@ fn gen_fields(
                         "{}",
                         name.clone().unwrap().to_string().to_case(Case::Pascal)
                     );
-                    quote_spanned! {f.span()=> self.#name.view().map(#form_message::#pascal_name)}
+                    if is_bool(&f.ty){
+                        let title_name = name.clone().unwrap().to_string().to_case(Case::Title);
+                        quote_spanned! {f.span()=> 
+                            ::iced::widget::toggler(
+                                Some(#title_name.to_owned()),
+                                self.builder.#name.unwrap_or(false),
+                                #form_message::#pascal_name)
+                        }
+                    }else{
+                        quote_spanned! {f.span()=> self.#name.view().map(#form_message::#pascal_name)}
+                    }
                 });
                 let form_update = fields.named.iter().map(|f| {
                     let name = &f.ident;
@@ -98,12 +126,21 @@ fn gen_fields(
                         "{}",
                         name.clone().unwrap().to_string().to_case(Case::Pascal)
                     );
-                    quote_spanned! {f.span()=>
-                        #form_message::#pascal_name(message)=>{
-                            if let ::iced_form::form_field::Message::Value((ref val,_))=message{
-                                self.builder.#name(val.clone());
+                    if is_bool(&f.ty){
+                        quote_spanned! {f.span()=>
+                            #form_message::#pascal_name(val)=>{
+                                self.builder.#name(val);
+                                ::iced::Command::none()
                             }
-                            self.#name.update(message).map(#form_message::#pascal_name)
+                        }
+                    }else{
+                        quote_spanned! {f.span()=>
+                            #form_message::#pascal_name(message)=>{
+                                if let ::iced_form::form_field::Message::Value((ref val,_))=message{
+                                    self.builder.#name(val.clone());
+                                }
+                                self.#name.update(message).map(#form_message::#pascal_name)
+                            }
                         }
                     }
                 });
