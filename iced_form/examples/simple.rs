@@ -6,6 +6,16 @@ use iced::{
 };
 use iced_form::form_field::{self, FormField};
 
+#[derive(Clone, Debug)]
+enum Var {
+    Linux,
+    Darwin,
+}
+#[derive(Clone, Debug)]
+struct SubConfig {
+    name: String,
+}
+
 #[derive(Builder, Clone, Debug)]
 struct Config {
     name: String,
@@ -14,6 +24,8 @@ struct Config {
     num: f32,
     #[builder(default = "false")]
     enabled: bool,
+    var: Var,
+    sub_config: SubConfig,
 }
 
 #[derive(Clone, Debug)]

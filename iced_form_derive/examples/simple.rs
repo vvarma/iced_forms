@@ -1,6 +1,15 @@
 use derive_builder::Builder;
 use iced_form_derive::FormBuilder;
 
+#[derive(Clone, Debug, FormBuilder, PartialEq, PartialOrd)]
+enum Var {
+    Linux,
+    Darwin,
+}
+#[derive(Clone, Debug, Builder, FormBuilder)]
+struct SubConfig {
+    name: String,
+}
 #[derive(Debug, Clone, Builder, FormBuilder)]
 struct Config {
     name: String,
@@ -8,6 +17,8 @@ struct Config {
     seed: usize,
     num: f32,
     enabled: bool,
+    var: Var,
+    sub_config: SubConfig,
 }
 
 fn main() -> iced::Result {
