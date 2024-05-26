@@ -1,7 +1,8 @@
+#![allow(dead_code)]
 use derive_builder::Builder;
 use iced_form_derive::FormBuilder;
 
-#[derive(Builder, FormBuilder)]
+#[derive(Debug, Clone, Builder, FormBuilder)]
 struct Config {
     name: String,
     //path: PathBuf,
