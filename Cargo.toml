@@ -1,0 +1,3 @@
+[workspace]
+members=["iced_form", "iced_form_derive"]
+resolver="2"

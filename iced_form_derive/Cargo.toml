@@ -1,0 +1,23 @@
+[package]
+name = "iced_form_derive"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[[test]]
+name = "tests"
+path = "tests/form_derive.rs"
+
+[dependencies]
+iced_form = {path="../iced_form/"}
+iced = { git="https://github.com/iced-rs/iced", features = ["advanced"] }
+proc-macro2 = "1.0.83"
+quote = "1.0.36"
+syn = "2.0.66"
+convert_case = "0.6.0"
+
+[dev-dependencies]
+derive_builder = "0.20.0"
+trybuild = { version = "1.0.96", features = ["diff"] }
