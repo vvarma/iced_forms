@@ -37,6 +37,9 @@ pub fn derive_for_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream 
                 ].into()
 
             }
+            #vis fn build(&self)-> ::std::option::Option<#name>{
+                self.builder.build().ok()
+            }
             #vis fn view(&self)->iced::Element<#form_message>{
                 let submit = ::iced::widget::button("Submit").on_press_maybe(self.builder.build().ok().map(|val|#form_message::#name(val)));
                 iced::widget::column![
@@ -44,7 +47,7 @@ pub fn derive_for_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream 
                     submit,
                 ].into()
             }
-            #vis fn update(&mut self, message:#form_message)->iced::Command<#form_message>{
+            #vis fn update(&mut self, message:#form_message)-> ::iced::Command<#form_message>{
                 match message {
                     #form_update
                     _ => ::iced::Command::none(),
@@ -151,10 +154,11 @@ fn gen_fields(
 
                     quote_spanned! {f.span()=>
                         #form_message::#pascal_name(message) => {
-                            if let #sub_message::#sub_ty(ref val) = message{
-                                self.builder.#name(val.clone());
+                            let cmd = self.#name.update(message).map(#form_message::#pascal_name);
+                            if let Some(val) = self.#name.build(){
+                                self.builder.#name(val);
                             }
-                            self.#name.update(message).map(#form_message::#pascal_name)
+                            cmd
                         }
                     }
                 }

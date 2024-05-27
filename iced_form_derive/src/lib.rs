@@ -1,3 +1,4 @@
+mod de_enum;
 mod de_struct;
 mod de_unit_enum;
 use de_struct::derive_for_struct;
@@ -27,7 +28,7 @@ fn derive_for_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     {
         derive_for_unit_enum(input, data)
     } else {
-        unimplemented!()
+        de_enum::derive_for_enum(input, data)
     }
 }
 
