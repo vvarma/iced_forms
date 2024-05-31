@@ -8,6 +8,8 @@ use iced::{
     Command, Element,
 };
 
+use crate::Catalog;
+
 #[derive(Clone, Debug)]
 pub enum Message<T>
 where
@@ -41,7 +43,10 @@ where
             invalid_reason: None,
         }
     }
-    pub fn view(&self) -> Element<Message<T>> {
+    pub fn view<'a, Theme>(&'a self) -> Element<'a, Message<T>, Theme>
+    where
+        Theme: Catalog + 'a,
+    {
         row!(
             text(&self.key),
             text_input(&self.value_str, &self.value_str).on_input(|val| match val.parse::<T>() {

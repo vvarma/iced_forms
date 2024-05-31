@@ -3,11 +3,15 @@ use std::fmt::Display;
 
 use derive_builder::Builder;
 use iced::{
-    alignment,
+    advanced::Application,
+    alignment, executor,
     widget::{button, column, toggler},
-    Command, Element,
+    Command, Element, Font, Renderer, Settings, Theme,
 };
-use iced_form::form_field::{self, FormField};
+use iced_form::{
+    form_field::{self, FormField},
+    Catalog,
+};
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 enum VehicleType {
@@ -123,7 +127,10 @@ impl Default for VehicleForm {
     }
 }
 impl VehicleForm {
-    fn view(&self) -> Element<Message> {
+    fn view<'a, Theme>(&'a self) -> Element<'a, Message, Theme>
+    where
+        Theme: Catalog + 'a,
+    {
         column![
             self.name.view().map(Message::Name),
             self.num_wheels.view().map(Message::NumWheels),
@@ -184,11 +191,42 @@ impl VehicleForm {
     }
 }
 
+struct App {
+    form: VehicleForm,
+}
+
+impl Application for App {
+    type Executor = executor::Default;
+    type Message = Message;
+    type Renderer = Renderer;
+    type Theme = Theme;
+    type Flags = ();
+
+    fn new(_: Self::Flags) -> (Self, Command<Self::Message>) {
+        (
+            Self {
+                form: VehicleForm::default(),
+            },
+            Command::none(),
+        )
+    }
+
+    fn title(&self) -> String {
+        "Config Form".to_string()
+    }
+
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+        self.form.update(message)
+    }
+
+    fn view(&self) -> Element<'_, Self::Message, Self::Theme, Self::Renderer> {
+        self.form.view()
+    }
+}
+
 fn main() -> iced::Result {
-    iced::program("Config Form", VehicleForm::update, VehicleForm::view)
-        .settings(iced::Settings {
-            default_font: iced::Font::MONOSPACE,
-            ..Default::default()
-        })
-        .run()
+    App::run(Settings {
+        default_font: Font::MONOSPACE,
+        ..Default::default()
+    })
 }

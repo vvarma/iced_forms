@@ -138,7 +138,9 @@ fn generate_form_enum(input: &DeriveInput, data: &DataEnum) -> proc_macro2::Toke
             #(#builder_variants ,)*
         }
         impl #form_name {
-        #vis fn view_nested(&self) -> ::iced::Element<#msg_name> {
+        #vis fn view_nested<'a, Theme>(&'a self) -> ::iced::Element<'a, #msg_name, Theme>
+        where Theme: ::iced_form::Catalog + 'a
+        {
             match self{
                 #(#view_variants,)*
             }
@@ -149,7 +151,9 @@ fn generate_form_enum(input: &DeriveInput, data: &DataEnum) -> proc_macro2::Toke
             }
 
         }
-        #vis fn view(&self)-> ::iced::Element<#msg_name>{
+        #vis fn view<'a, Theme>(&'a self)-> ::iced::Element<'a, #msg_name, Theme>
+        where Theme: ::iced_form::Catalog + 'a
+        {
             ::iced::widget::column![
                 self.view_nested(),
                 ::iced::widget::button("Submit").on_press_maybe(self.build().map(#msg_name::#ident))
@@ -298,7 +302,9 @@ fn generate_form_wrapper(input: &DeriveInput, data: &DataEnum) -> proc_macro2::T
             #vis fn build(&self)-> ::std::option::Option<#ident>{
                 self.form.as_ref().and_then(|val|val.build())
             }
-            #vis fn view_nested(&self)-> ::iced::Element<#form_message_name> {
+            #vis fn view_nested<'a, Theme>(&'a self)-> ::iced::Element<'a, #form_message_name, Theme>
+            where Theme: ::iced_form::Catalog + 'a
+            {
                 let mut content = ::iced::widget::column![
                     self.pick_list.view_nested().map(#form_message_name::PickList),
                 ];
@@ -307,7 +313,9 @@ fn generate_form_wrapper(input: &DeriveInput, data: &DataEnum) -> proc_macro2::T
                 }
                 content.into()
             }
-            #vis fn view(&self) -> ::iced::Element<#form_message_name> {
+            #vis fn view<'a, Theme>(&'a self) -> ::iced::Element<'a, #form_message_name, Theme>
+            where Theme: ::iced_form::Catalog + 'a
+            {
                 ::iced::widget::column![
                     self.view_nested(),
                     ::iced::widget::button("Submit").on_press_maybe(self.build().map(#form_message_name::#ident))

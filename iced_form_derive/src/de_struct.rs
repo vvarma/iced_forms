@@ -31,7 +31,9 @@ pub fn derive_for_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream 
             }
         }
         impl #form_name{
-            #vis fn view_nested(&self)->::iced::Element<#form_message> {
+            #vis fn view_nested<'a, Theme>(&'a self)->::iced::Element<'a, #form_message,Theme>
+            where Theme: ::iced_form::Catalog + 'a
+            {
                 iced::widget::column![
                     #form_view
                 ].into()
@@ -40,7 +42,9 @@ pub fn derive_for_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream 
             #vis fn build(&self)-> ::std::option::Option<#name>{
                 self.builder.build().ok()
             }
-            #vis fn view(&self)->iced::Element<#form_message>{
+            #vis fn view<'a, Theme>(&'a self)->iced::Element<'a, #form_message, Theme>
+            where Theme: ::iced_form::Catalog + 'a
+            {
                 let submit = ::iced::widget::button("Submit").on_press_maybe(self.builder.build().ok().map(|val|#form_message::#name(val)));
                 iced::widget::column![
                     #form_view
