@@ -3,12 +3,39 @@ use derive_builder::Builder;
 use iced::{advanced::Application, executor, Command, Element, Font, Renderer, Settings, Theme};
 use iced_form_derive::FormBuilder;
 
+#[derive(Debug, Clone, FormBuilder, PartialEq)]
+enum UnitEnum {
+    TypeOne,
+    TypeTwo,
+}
+
+#[derive(Debug, Clone, Builder, FormBuilder)]
+struct SomeStruct {
+    seed: f32,
+}
+
+#[derive(Debug, Clone, FormBuilder)]
+enum VarEnum {
+    VarT(i32),
+    VarTString { name: String, ss: SomeStruct },
+    VarTSS(SomeStruct),
+}
+
+#[derive(Debug, Clone, Builder, FormBuilder)]
+struct SubConfig {
+    name: String,
+    seed: usize,
+    unit_enum: UnitEnum,
+    var_enum: VarEnum,
+}
+
 #[derive(Debug, Clone, Builder, FormBuilder)]
 struct Config {
     name: String,
     //path: PathBuf,
     seed: usize,
     num: f32,
+    sub_config: SubConfig,
 }
 
 struct App {
@@ -46,4 +73,8 @@ impl Application for App {
 
 fn main() -> iced::Result {
     Ok(())
+    //App::run(Settings {
+    //    default_font: Font::MONOSPACE,
+    //    ..Default::default()
+    //})
 }

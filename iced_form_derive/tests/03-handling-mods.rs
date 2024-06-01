@@ -1,14 +1,27 @@
 #![allow(dead_code)]
 use derive_builder::Builder;
-use iced::{advanced::Application, executor, Command, Element, Font, Renderer, Settings, Theme};
+use iced::{advanced::Application, executor, Command, Element, Renderer, Theme};
 use iced_form_derive::FormBuilder;
 
-#[derive(Debug, Clone, Builder, FormBuilder)]
+mod vehicle {
+    use iced_form_derive::FormBuilder;
+
+    #[derive(Clone, Debug, FormBuilder, PartialEq)]
+    pub enum Fuel {
+        Petrol,
+        Diesel,
+    }
+    #[derive(Clone, Debug, FormBuilder)]
+    pub enum Config {
+        Car { fuel: Fuel, used: bool },
+        Bus,
+        HorseCart { driver: String },
+    }
+}
+
+#[derive(Clone, Debug, Builder, FormBuilder)]
 struct Config {
-    name: String,
-    //path: PathBuf,
-    seed: usize,
-    num: f32,
+    vehicle_config: vehicle::Config,
 }
 
 struct App {
@@ -44,6 +57,4 @@ impl Application for App {
     }
 }
 
-fn main() -> iced::Result {
-    Ok(())
-}
+fn main() {}

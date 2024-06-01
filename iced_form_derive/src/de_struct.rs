@@ -86,19 +86,21 @@ fn gen_fields(
                 } else if is_form_field_type(ty) {
                     quote_spanned! {f.span()=> #pascal_name(iced_form::form_field::Message<#ty>) }
                 } else {
-                    let sub_ty = get_type_ident(ty);
+                    let (mut sub_path, sub_ty) = get_type_ident(ty);
                     let sub_message = form_message_name(&sub_ty);
-                    quote_spanned! {f.span()=>#pascal_name(#sub_message)}
+                    sub_path.segments.push(sub_message.into());
+                    quote_spanned! {f.span()=>#pascal_name(#sub_path)}
                 }
             });
             let form_fields = fields.named.iter().filter(|f| !is_bool(&f.ty)).map(|f| {
                 let name = &f.ident;
                 let ty = &f.ty;
-                let form_name = form_name(&get_type_ident(ty));
                 if is_form_field_type(ty) {
                     quote_spanned! {f.span()=> #name: ::iced_form::form_field::FormField<#ty> }
                 } else {
-                    quote_spanned! {f.span()=>#name:#form_name }
+                    let (mut form_path, ty_ident) = get_type_ident(ty);
+                    form_path.segments.push(form_name(&ty_ident).into());
+                    quote_spanned! {f.span()=>#name:#form_path }
                 }
             });
             let form_default = fields.named.iter().filter(|f| !is_bool(&f.ty)).map(|f|{
@@ -153,9 +155,6 @@ fn gen_fields(
                         }
                     }
                 } else {
-                    let sub_ty = get_type_ident(&f.ty);
-                    let sub_message = form_message_name(&sub_ty);
-
                     quote_spanned! {f.span()=>
                         #form_message::#pascal_name(message) => {
                             let cmd = self.#name.update(message).map(#form_message::#pascal_name);
