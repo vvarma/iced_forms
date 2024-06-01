@@ -16,7 +16,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
         Data::Enum(data) => derive_for_enum(&input, data),
         Data::Union(_) => unimplemented!(),
     };
-    eprintln!("TOKENS: {}", tokens);
     tokens
 }
 
