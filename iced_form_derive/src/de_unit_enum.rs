@@ -37,13 +37,20 @@ pub fn derive_for_unit_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream
             selected: Option<#name>,
         }
     impl #form_name {
-        #vis fn view_nested(&self)->::iced::Element<#form_message> {
+        #vis fn view_nested<'a, Theme>(&'a self)->::iced::Element<'a, #form_message, Theme>
+        where Theme: ::iced_form::Catalog + 'a
+        {
             ::iced::widget::row![
                 ::iced::widget::text(#title_name),
                 ::iced::widget::pick_list(#name::ALL,self.selected.clone(),#form_message::#name)
             ].into()
         }
-        #vis fn view(&self)->::iced::Element<#form_message> {
+        #vis fn build(&self) -> ::std::option::Option<#name> {
+            self.selected.clone()
+        }
+        #vis fn view<'a, Theme>(&'a self)->::iced::Element<'a, #form_message, Theme>
+        where Theme: ::iced_form::Catalog + 'a
+        {
             self.view_nested()
         }
         #vis fn update(&mut self, message:#form_message)-> ::iced::Command<#form_message> {

@@ -2,34 +2,26 @@
 use derive_builder::Builder;
 use iced::{advanced::Application, executor, Command, Element, Font, Renderer, Settings, Theme};
 use iced_form_derive::FormBuilder;
+#[derive(Builder, Clone, Debug, FormBuilder)]
+struct Price {
+    cost: f32,
+    tax: f32,
+}
 
-#[derive(Clone, Debug, FormBuilder, PartialEq, PartialOrd)]
-enum Var {
-    Linux,
-    Darwin,
-}
-#[derive(Clone, Debug, Builder, FormBuilder)]
-struct SubConfig {
-    name: String,
-}
-#[derive(Debug, Clone, Builder, FormBuilder)]
-struct Config {
-    name: String,
-    //path: PathBuf,
-    seed: usize,
-    num: f32,
-    enabled: bool,
-    var: Var,
-    sub_config: SubConfig,
+#[derive(Clone, Debug, FormBuilder)]
+enum Status {
+    Sale(Price),
+    Rent { price: Price, min_days: usize },
+    NotForSale,
 }
 
 struct App {
-    form: ConfigForm,
+    form: StatusForm,
 }
 
 impl Application for App {
     type Executor = executor::Default;
-    type Message = ConfigFormMessage;
+    type Message = StatusFormMessage;
     type Renderer = Renderer;
     type Theme = Theme;
     type Flags = ();
@@ -37,7 +29,7 @@ impl Application for App {
     fn new(_: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             Self {
-                form: ConfigForm::default(),
+                form: StatusForm::default(),
             },
             Command::none(),
         )
