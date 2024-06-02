@@ -43,6 +43,11 @@ where
             invalid_reason: None,
         }
     }
+    pub fn with_value(mut self, val: T) -> Self {
+        self.value_str = val.to_string();
+        self.value = Some(val);
+        self
+    }
     pub fn view<'a, Theme>(&'a self) -> Element<'a, Message<T>, Theme>
     where
         Theme: Catalog + 'a,

@@ -24,6 +24,7 @@ pub fn derive_for_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream 
         }
         impl ::std::default::Default for #form_name {
             fn default() -> Self {
+                let def = #name::default();
                 Self{
                     builder: ::std::default::Default::default(),
                     #form_default
@@ -107,7 +108,7 @@ fn gen_fields(
                     let name = &f.ident;
                     let title_name = name.clone().unwrap().to_string().to_case(Case::Title);
                     if is_form_field_type(&f.ty) {
-                        quote_spanned! {f.span()=>#name: ::iced_form::form_field::FormField::new(#title_name)}
+                        quote_spanned! {f.span()=>#name: ::iced_form::form_field::FormField::new(#title_name).with_value(def.#name)}
                     } else{
                         quote_spanned! {f.span()=>#name: ::std::default::Default::default()}
                     }

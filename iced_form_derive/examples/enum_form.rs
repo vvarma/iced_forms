@@ -2,7 +2,7 @@
 use derive_builder::Builder;
 use iced::{advanced::Application, executor, Command, Element, Font, Renderer, Settings, Theme};
 use iced_form_derive::FormBuilder;
-#[derive(Builder, Clone, Debug, FormBuilder)]
+#[derive(Builder, Clone, Debug, FormBuilder, Default)]
 struct Price {
     cost: f32,
     tax: f32,

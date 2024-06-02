@@ -3,16 +3,26 @@ use derive_builder::Builder;
 use iced::{advanced::Application, executor, Command, Element, Font, Renderer, Settings, Theme};
 use iced_form_derive::FormBuilder;
 
-#[derive(Clone, Debug, FormBuilder, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, FormBuilder, PartialEq, PartialOrd, Default)]
 enum Var {
+    #[default]
     Linux,
     Darwin,
 }
 #[derive(Clone, Debug, Builder, FormBuilder)]
+#[builder(default)]
 struct SubConfig {
     name: String,
 }
+impl Default for SubConfig {
+    fn default() -> Self {
+        Self {
+            name: "sub_config".to_string(),
+        }
+    }
+}
 #[derive(Debug, Clone, Builder, FormBuilder)]
+#[builder(default)]
 struct Config {
     name: String,
     //path: PathBuf,
@@ -21,6 +31,18 @@ struct Config {
     enabled: bool,
     var: Var,
     sub_config: SubConfig,
+}
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            name: "Config".to_string(),
+            seed: 42,
+            num: std::f32::consts::PI,
+            enabled: true,
+            var: Default::default(),
+            sub_config: Default::default(),
+        }
+    }
 }
 
 struct App {
@@ -48,6 +70,9 @@ impl Application for App {
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+        if let ConfigFormMessage::Config(config) = &message {
+            println!("{:?}", config);
+        }
         self.form.update(message)
     }
 
