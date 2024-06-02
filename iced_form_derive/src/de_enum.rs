@@ -197,7 +197,7 @@ fn handle_named_variant(
     let ident = &input.ident;
     let var_ident = &var.ident;
     quote! {
-        #[derive(Clone,Debug,FormBuilder,::derive_builder::Builder)]
+        #[derive(Clone,Debug,FormBuilder,::derive_builder::Builder, ::std::default::Default)]
         #vis struct #builder_name{
             #(#builder_fields,)*
         }
@@ -228,7 +228,7 @@ fn handle_unnamed_variant(
     let var_ident = &var.ident;
     let vis = &input.vis;
     quote! {
-        #[derive(Clone,Debug,FormBuilder,::derive_builder::Builder)]
+        #[derive(Clone,Debug,FormBuilder,::derive_builder::Builder, ::std::default::Default)]
         #vis struct #builder_name{
             #(#builder_fields,)*
         }

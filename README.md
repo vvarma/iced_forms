@@ -7,6 +7,9 @@ A `proc_macro_derive` implementation to generate boilerplate around building for
 - Support for Enums without any fields using `iced::widgets::pick_list`
 - Nested structs are supported
 - Support for Enums with named and un-named fields.
+- Support for defaults:
+  - TODO: feature guard this with a derive attribute
+  - TODO: Builder's handling of bool seems to be counter-intuitive. Doesnt seem to set the bool since the field is None by default
 
 ## Planned
 - Support for std::chrono - `date_picker`
